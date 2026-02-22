@@ -101,36 +101,24 @@ const FallingNotes = ({ notes, fallDuration }: FallingNotesProps) => {
         <div className="absolute h-full w-px bg-white/8" style={{ left: '80%' }} />
       </div>
 
-      {/* 히트라인 글로우 영역 */}
-      <div
-        className="absolute left-0 right-0 pointer-events-none"
-        style={{ top: `${HIT_LINE_PERCENT - 6}%`, height: '12%' }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-amber-400/20 to-transparent" />
-      </div>
-
-      {/* 히트라인 (2배 두껍게) */}
-      <div
-        className="absolute left-0 right-0 z-10"
-        style={{ top: `${HIT_LINE_PERCENT}%`, transform: 'translateY(-50%)' }}
-      >
-        <div className="h-2 bg-gradient-to-r from-transparent via-amber-400 to-transparent opacity-90" />
-        <div className="h-[2px] bg-white/40" />
-      </div>
-
-      {/* 히트라인 블러 글로우 (2배) */}
-      <div
-        className="absolute left-0 right-0 h-4 bg-amber-400/25 blur-lg z-10"
-        style={{ top: `${HIT_LINE_PERCENT}%`, transform: 'translateY(-50%)' }}
-      />
-
-      {/* 히트라인 아래 어둡게 */}
-      <div
-        className="absolute left-0 right-0 bottom-0 pointer-events-none"
-        style={{ top: `${HIT_LINE_PERCENT + 2}%` }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/15 to-black/30 backdrop-blur-[1px]" />
-      </div>
+      {/* 판정 영역 원형 타겟 */}
+      {['sangmo', 'kkwaenggwari', 'stomp'].map((type) => (
+        <div
+          key={type}
+          className="absolute z-10 pointer-events-none"
+          style={{
+            left: `${getLanePosition(type)}%`,
+            top: `${HIT_LINE_PERCENT}%`,
+            transform: 'translate(-50%, -50%)',
+          }}
+        >
+          <div className="w-16 h-16 sm:w-[4.5rem] sm:h-[4.5rem] rounded-full
+            border-2 border-white/30 bg-white/5
+            shadow-[0_0_12px_2px_rgba(255,255,255,0.08),inset_0_0_8px_rgba(255,255,255,0.05)]"
+          />
+          <div className="absolute inset-0 rounded-full border border-white/10 scale-110" />
+        </div>
+      ))}
 
       {/* 노트들 */}
       {notes.map((note) => {
