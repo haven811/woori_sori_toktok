@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Jua', sans-serif;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.note-sangmo {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+}
+
+.note-kkwaenggwari {
+  background: linear-gradient(135deg, #feca57 0%, #f7b731 100%);
+  box-shadow: 0 4px 15px rgba(254, 202, 87, 0.4);
+}
+
+.note-stomp {
+  background: linear-gradient(135deg, #5f27cd 0%, #341f97 100%);
+  box-shadow: 0 4px 15px rgba(95, 39, 205, 0.4);
+}
+
+@keyframes note-hit {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.5; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+.note-hit-effect {
+  animation: note-hit 0.3s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes note-particle-burst {
+  0% {
+    transform: translate(-50%, -50%) translate(0, 0) scale(0.5);
+    opacity: 1;
+  }
+  30% {
+    opacity: 1;
+    transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(1.2);
+  }
+  100% {
+    transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(0.3);
+    opacity: 0;
+  }
+}
+
+.note-particle {
+  animation: note-particle-burst 1s ease-out forwards;
+  background: linear-gradient(135deg, #ffffff 0%, #fbbf24 50%, #fde68a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 3px rgba(251, 191, 36, 0.7));
+  font-weight: bold;
+  line-height: 1;
+  pointer-events: none;
+}
