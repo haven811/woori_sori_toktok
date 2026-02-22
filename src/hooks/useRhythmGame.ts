@@ -36,15 +36,22 @@ export const useRhythmGame = () => {
   const maxTime = GAME_CONSTANTS.GAME_DURATION;
   const noteFallDuration = GAME_CONSTANTS.NOTE_FALL_DURATION;
 
-  const playBgm = useCallback(() => {
+  const preloadBgm = useCallback(() => {
     if (!bgmRef.current) {
-      bgmRef.current = new Audio(bgmSound);
-      bgmRef.current.loop = true;
-      bgmRef.current.volume = 0.5;
+      const audio = new Audio(bgmSound);
+      audio.loop = true;
+      audio.volume = 0.5;
+      audio.preload = 'auto';
+      audio.load();
+      bgmRef.current = audio;
     }
-    bgmRef.current.currentTime = 0;
-    bgmRef.current.play().catch(console.error);
   }, []);
+
+  const playBgm = useCallback(() => {
+    preloadBgm();
+    bgmRef.current!.currentTime = 0;
+    bgmRef.current!.play().catch(console.error);
+  }, [preloadBgm]);
 
   const stopBgm = useCallback(() => {
     if (bgmRef.current) {
@@ -115,6 +122,7 @@ export const useRhythmGame = () => {
 
   const startCountdown = useCallback(() => {
     playSound(buttonSound);
+    preloadBgm();
     setPhase('countdown');
     setCountdown(3);
     playSound(countdownSound);
@@ -130,7 +138,7 @@ export const useRhythmGame = () => {
         startGameRef.current();
       }
     }, 1000);
-  }, [playSound]);
+  }, [playSound, preloadBgm]);
 
   const calculateJudgment = (timeDiff: number): JudgmentType => {
     const absDiff = Math.abs(timeDiff);
@@ -271,11 +279,12 @@ export const useRhythmGame = () => {
   }, [resetGame, playSound]);
 
   useEffect(() => {
+    preloadBgm();
     return () => {
       stopBgm();
       cleanupIntervals();
     };
-  }, [stopBgm, cleanupIntervals]);
+  }, [preloadBgm, stopBgm, cleanupIntervals]);
 
   return {
     phase,
