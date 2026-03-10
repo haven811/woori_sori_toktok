@@ -11,6 +11,7 @@ export interface Note {
   type: NoteType;
   createdAt: number;
   hit: boolean;
+  fallDuration: number;
   hitJudgment?: JudgmentType;
   hitTime?: number;
 }

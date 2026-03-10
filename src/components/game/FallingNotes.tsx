@@ -103,7 +103,7 @@ const NoteParticles = ({ noteId }: { noteId: number }) => {
   );
 };
 
-const FallingNotes = ({ notes, fallDuration }: FallingNotesProps) => {
+const FallingNotes = ({ notes }: FallingNotesProps) => {
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
@@ -171,7 +171,7 @@ const FallingNotes = ({ notes, fallDuration }: FallingNotesProps) => {
       {/* 노트들 */}
       {notes.map((note) => {
         const elapsed = now - note.createdAt;
-        const progress = elapsed / fallDuration;
+        const progress = elapsed / note.fallDuration;
         const topPercent = progress * 100;
 
         if (topPercent > 115) return null;

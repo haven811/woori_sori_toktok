@@ -24,17 +24,39 @@ export const useRhythmGame = () => {
   const [lastJudgment, setLastJudgment] = useState<JudgmentType>(null);
 
   const noteIdRef = useRef<number>(0);
-  const noteSpawnIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const noteSpawnTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const gameTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const bgmRef = useRef<HTMLAudioElement | null>(null);
   const notesRef = useRef<Note[]>([]);
   const phaseRef = useRef<GamePhase>('ready');
+  const gameStartTimeRef = useRef<number>(0);
 
   notesRef.current = notes;
   phaseRef.current = phase;
 
   const maxTime = GAME_CONSTANTS.GAME_DURATION;
-  const noteFallDuration = GAME_CONSTANTS.NOTE_FALL_DURATION;
+  const baseFallDuration = GAME_CONSTANTS.NOTE_FALL_DURATION;
+
+  const SPAWN_INTERVALS = {
+    A: GAME_CONSTANTS.NOTE_SPAWN_INTERVAL,
+    B: Math.round(GAME_CONSTANTS.NOTE_SPAWN_INTERVAL * 0.7),
+    C: Math.round(GAME_CONSTANTS.NOTE_SPAWN_INTERVAL * 0.5),
+  };
+
+  const getRandomSpawnInterval = () => {
+    const keys = ['A', 'B', 'C'] as const;
+    return SPAWN_INTERVALS[keys[Math.floor(Math.random() * keys.length)]];
+  };
+
+  const SPEED_UP_THRESHOLD = 40;
+  const SPEED_UP_FACTOR = 0.8;
+
+  const getCurrentFallDuration = () => {
+    const elapsed = (Date.now() - gameStartTimeRef.current) / 1000;
+    return elapsed >= SPEED_UP_THRESHOLD
+      ? Math.round(baseFallDuration * SPEED_UP_FACTOR)
+      : baseFallDuration;
+  };
 
   const preloadBgm = useCallback(() => {
     if (!bgmRef.current) {
@@ -67,9 +89,9 @@ export const useRhythmGame = () => {
   }, []);
 
   const cleanupIntervals = useCallback(() => {
-    if (noteSpawnIntervalRef.current) {
-      clearInterval(noteSpawnIntervalRef.current);
-      noteSpawnIntervalRef.current = null;
+    if (noteSpawnTimeoutRef.current) {
+      clearTimeout(noteSpawnTimeoutRef.current);
+      noteSpawnTimeoutRef.current = null;
     }
     if (gameTimerRef.current) {
       clearInterval(gameTimerRef.current);
@@ -89,6 +111,7 @@ export const useRhythmGame = () => {
       type: randomType,
       createdAt: Date.now(),
       hit: false,
+      fallDuration: getCurrentFallDuration(),
     };
     setNotes((prev) => [...prev, newNote]);
   };
@@ -103,11 +126,15 @@ export const useRhythmGame = () => {
   startGameRef.current = () => {
     setPhase('playing');
     playBgm();
+    gameStartTimeRef.current = Date.now();
 
-    spawnNoteRef.current();
-    noteSpawnIntervalRef.current = setInterval(() => {
+    const scheduleNextSpawn = () => {
+      if (phaseRef.current !== 'playing') return;
       spawnNoteRef.current();
-    }, GAME_CONSTANTS.NOTE_SPAWN_INTERVAL);
+      const nextInterval = getRandomSpawnInterval();
+      noteSpawnTimeoutRef.current = setTimeout(scheduleNextSpawn, nextInterval);
+    };
+    scheduleNextSpawn();
 
     gameTimerRef.current = setInterval(() => {
       setTimeLeft((prev) => {
@@ -156,7 +183,6 @@ export const useRhythmGame = () => {
       setTimeout(() => setCurrentAction('idle'), 300);
 
       const now = Date.now();
-      const targetTime = noteFallDuration * GAME_CONSTANTS.HIT_LINE_RATIO;
 
       let closestNote: Note | null = null;
       let closestTimeDiff = Infinity;
@@ -164,6 +190,7 @@ export const useRhythmGame = () => {
       notesRef.current.forEach((note) => {
         if (note.hit || note.type !== inputType) return;
         const noteAge = now - note.createdAt;
+        const targetTime = note.fallDuration * GAME_CONSTANTS.HIT_LINE_RATIO;
         const timeDiff = noteAge - targetTime;
 
         if (
@@ -217,15 +244,11 @@ export const useRhythmGame = () => {
         }));
       }
     },
-    [noteFallDuration]
+    []
   );
 
-  // Missed notes detection & cleanup
   useEffect(() => {
     if (phase !== 'playing') return;
-
-    const missThreshold =
-      noteFallDuration * GAME_CONSTANTS.HIT_LINE_RATIO + GAME_CONSTANTS.HIT_WINDOW.GOOD + 100;
 
     const interval = setInterval(() => {
       const now = Date.now();
@@ -235,6 +258,8 @@ export const useRhythmGame = () => {
 
       currentNotes.forEach((note) => {
         if (note.hit) return;
+        const missThreshold =
+          note.fallDuration * GAME_CONSTANTS.HIT_LINE_RATIO + GAME_CONSTANTS.HIT_WINDOW.GOOD + 100;
         const noteAge = now - note.createdAt;
         if (noteAge > missThreshold) {
           missCount++;
@@ -252,13 +277,13 @@ export const useRhythmGame = () => {
       setNotes((prev) =>
         prev.filter((note) => {
           const noteAge = now - note.createdAt;
-          return noteAge <= noteFallDuration + 500;
+          return noteAge <= note.fallDuration + 500;
         })
       );
     }, 100);
 
     return () => clearInterval(interval);
-  }, [phase, noteFallDuration]);
+  }, [phase]);
 
   const resetGame = useCallback(() => {
     setPhase('ready');
@@ -295,7 +320,7 @@ export const useRhythmGame = () => {
     stats,
     currentAction,
     lastJudgment,
-    noteFallDuration,
+    noteFallDuration: baseFallDuration,
     startCountdown,
     handlePlayerInput,
     restartGame,
