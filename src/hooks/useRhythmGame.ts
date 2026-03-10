@@ -125,6 +125,7 @@ export const useRhythmGame = () => {
 
   startGameRef.current = () => {
     setPhase('playing');
+    phaseRef.current = 'playing';
     playBgm();
     gameStartTimeRef.current = Date.now();
 
