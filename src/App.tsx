@@ -4,6 +4,7 @@ import TimerBar from '@/components/game/TimerBar';
 import ScoreDisplay from '@/components/game/ScoreDisplay';
 import CountdownOverlay from '@/components/game/CountdownOverlay';
 import FallingNotes from '@/components/game/FallingNotes';
+import FloatingNotes from '@/components/game/FloatingNotes';
 import JudgmentDisplay from '@/components/game/JudgmentDisplay';
 import RhythmResultModal from '@/components/game/RhythmResultModal';
 import { useRhythmGame } from '@/hooks/useRhythmGame';
@@ -37,6 +38,13 @@ const App = () => {
         backgroundRepeat: 'no-repeat',
       }}
     >
+      {/* 배경 음표 애니메이션 (게임 진행 중) */}
+      {phase === 'playing' && (
+        <div className="absolute inset-0 z-0">
+          <FloatingNotes />
+        </div>
+      )}
+
       {/* 타이틀 / 상태 바 영역 */}
       <header className="flex flex-col items-center pt-6 sm:pt-10 pb-3 relative z-10 shrink-0">
         {phase === 'playing' ? (
@@ -59,7 +67,7 @@ const App = () => {
       <main className="flex-1 flex flex-col items-center relative min-h-0">
         {/* 리듬 노트 영역 */}
         {phase === 'playing' && (
-          <div className="absolute inset-0">
+          <div className="absolute inset-0 z-[5]">
             <FallingNotes notes={notes} fallDuration={noteFallDuration} />
           </div>
         )}
