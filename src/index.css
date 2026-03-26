@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --real-vh: 1vh;
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -11,6 +17,8 @@
 html, body, #root {
   height: 100%;
   overflow: hidden;
+  position: fixed;
+  width: 100%;
 }
 
 body {
@@ -19,6 +27,18 @@ body {
   -webkit-user-select: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
+}
+
+.game-container {
+  height: 100vh;
+  height: 100dvh;
+  height: calc(var(--real-vh, 1vh) * 100);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding-top: var(--sat);
+  padding-bottom: var(--sab);
 }
 
 .note-sangmo {

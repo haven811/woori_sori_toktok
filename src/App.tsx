@@ -30,7 +30,7 @@ const App = () => {
 
   return (
     <div
-      className="h-screen flex flex-col overflow-hidden relative"
+      className="game-container"
       style={{
         backgroundImage: `url(${backgroundImage})`,
         backgroundSize: 'cover',
@@ -39,7 +39,7 @@ const App = () => {
       }}
     >
       {/* 타이틀 / 상태 바 영역 */}
-      <header className="flex flex-col items-center pt-6 sm:pt-10 pb-3 relative z-10 shrink-0">
+      <header className="flex flex-col items-center pt-3 sm:pt-6 pb-2 relative z-10 shrink-0">
         {phase === 'playing' ? (
           <div className="w-full flex items-center justify-between px-4 gap-4">
             <TimerBar timeLeft={timeLeft} maxTime={maxTime} />
@@ -50,7 +50,7 @@ const App = () => {
             <img
               src={logoImage}
               alt="우리소리톡톡"
-              className="h-20 sm:h-24 md:h-28 object-contain mx-auto drop-shadow-lg"
+              className="h-16 sm:h-24 md:h-28 object-contain mx-auto drop-shadow-lg"
             />
           </div>
         )}
@@ -67,9 +67,7 @@ const App = () => {
 
         {phase === 'playing' ? (
           <>
-            {/* 판별선 위 여백 */}
             <div className="flex-1" />
-            {/* 캐릭터 - 판별선 아래, 버튼 위 */}
             <div className="relative z-10 shrink-0 flex justify-center pb-1">
               <div className="scale-[0.65] sm:scale-[0.78] origin-bottom relative">
                 <GameCharacter phase={phase} />
@@ -79,18 +77,22 @@ const App = () => {
           </>
         ) : (
           <>
-            <div className="flex-1 flex justify-center items-center">
-              <GameCharacter phase={phase} />
+            <div className="flex-1 flex justify-center items-center min-h-0">
+              <div className="max-h-full flex items-center justify-center">
+                <GameCharacter phase={phase} />
+              </div>
             </div>
             {phase === 'ready' && (
-              <button
-                onClick={startCountdown}
-                className="mb-8 px-10 py-5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full font-bold text-2xl
-                  hover:scale-105 active:scale-95 transition-transform shadow-lg
-                  animate-pulse-glow font-game border-4 border-white/50"
-              >
-                게임 시작
-              </button>
+              <div className="shrink-0 pb-6 sm:pb-8">
+                <button
+                  onClick={startCountdown}
+                  className="px-10 py-5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full font-bold text-2xl
+                    hover:scale-105 active:scale-95 transition-transform shadow-lg
+                    animate-pulse-glow font-game border-4 border-white/50"
+                >
+                  게임 시작
+                </button>
+              </div>
             )}
           </>
         )}
@@ -98,7 +100,7 @@ const App = () => {
 
       {/* 액션 버튼 영역 */}
       {phase === 'playing' && (
-        <footer className="p-3 sm:p-5 relative z-20 shrink-0 bg-gradient-to-t from-black/30 to-transparent">
+        <footer className="px-3 pt-2 pb-3 sm:px-5 sm:pt-3 sm:pb-5 relative z-20 shrink-0 bg-gradient-to-t from-black/30 to-transparent">
           <div className="flex items-center justify-center gap-4 sm:gap-6 md:gap-8">
             <ActionButton
               type="sangmo"
